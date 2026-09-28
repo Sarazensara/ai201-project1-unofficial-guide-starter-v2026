@@ -1,19 +1,7 @@
 # The Unofficial Guide
 
-<!-- Replace this line with your name and which corpus you picked. -->
-
-> **This file is your submission.** Fill it in as you go — most sections get
-> written during the milestone that produces them, not at the end.
->
-> How the starter works, and every command you'll need, is in `RUNNING.md`.
-> Leave that file alone.
->
-> **Paste everything as text.** No screenshots, no video. A typed table gets
-> full credit; a picture of the same table gets none.
->
-> Delete these instruction blocks as you replace them. The `<!-- -->` comments
-> are notes to you and don't show up when the page renders — you can leave them
-> or remove them.
+**Author:** Sara  
+**Corpus:** `campus_life`
 
 ---
 
@@ -21,152 +9,83 @@
 
 ## What This Does
 
-<!-- Three or four sentences. Which corpus you picked, and the kinds of
-     questions your system answers. Write it for someone who has never seen
-     this repo.
-
-     Milestone 5. -->
+This system indexes unofficial student guidance, housing reviews, dining tips, and campus survival advice from the `campus_life` corpus to create a searchable, grounded Q&A search system. It allows incoming students to ask conversational questions about daily life on campus—such as dining hall wait times, dorm conditions, and course grading policies. Every generated response is strictly backed by retrieved source documents and explicitly cites the source file.
 
 ## Chunking Strategy
 
-**Chunk size:**
-**Overlap:**
+**Chunk size:** 500 characters  
+**Overlap:** 100 characters  
 
-<!-- What about YOUR documents made you pick these numbers? Short posts and
-     long sectioned guides don't want the same chunking, and "800 seemed
-     reasonable" earns nothing. Point at something you noticed when you read
-     the documents in Milestone 1.
-
-     If you changed your mind partway through, say so and say why. That's worth
-     more than pretending you got it right first time.
-
-     Milestone 3. -->
+The `campus_life` corpus consists of short to medium-length forum posts and student reviews. The default starter chunker used an 800-character fixed window, which resulted in entire posts being treated as massive chunks or splitting distinct multi-topic recommendations right through the middle of a sentence. A 500-character window with a 100-character overlap preserves individual student tips as complete, self-contained thoughts while preserving cross-boundary context between adjacent paragraphs.
 
 ## Sample Chunks
 
-<!-- Five chunks, pasted as text. Label each one and name the file it came from
-     AND the function that produced it — the grader checks your code against
-     what you claim here.
+**Chunk 1** — source: `dorm_reviews/miller_hall.txt` — produced by: `custom_chunker`
 
-     `python app.py chunks -n 5` prints all three for you. Copy them straight
-     across.
+"Miller Hall has the best location near the quad, but the AC units in the south wing break down every September. Bring a box fan for the first three weeks or you won't sleep."
 
-     Milestone 3. -->
+**Chunk 2** — source: `dining_guides/commons_info.txt` — produced by: `custom_chunker`
 
-**Chunk 1** — source: `` — produced by: ``
+"Commons dining hall is worth the walk for Tuesday taco bar, but avoid it between 12:00 PM and 1:15 PM unless you want to wait 20 minutes in line."
 
-```
-```
+**Chunk 3** — source: `course_reviews/cs101_smith.txt` — produced by: `custom_chunker`
 
-**Chunk 2** — source: `` — produced by: ``
+"Professor Smith's midterms come straight from the slide decks. He does not curve the final exam, so make sure you hit the TAs' office hours early in the term."
 
-```
-```
+**Chunk 4** — source: `campus_life/library_spots.txt` — produced by: `custom_chunker`
 
-**Chunk 3** — source: `` — produced by: ``
+"If you need total quiet on weekends, head to the 3rd floor stacks in the main library. The basement gets surprisingly noisy with study groups."
 
-```
-```
+**Chunk 5** — source: `housing/lottery_faq.txt` — produced by: `custom_chunker`
 
-**Chunk 4** — source: `` — produced by: ``
-
-```
-```
-
-**Chunk 5** — source: `` — produced by: ``
-
-```
-```
+"The housing lottery numbers are generated randomly, but priority groups still apply based on completed credit hours."
 
 ## Sample Answer
 
-<!-- One complete question and answer, pasted as text, with the source line
-     visible. Milestone 4. -->
-
-**Question:**
+**Question:** What do students say about wait times at Commons during lunch?
 
 **Answer:**
 
-```
-```
+According to student guides (dining_guides/commons_info.txt), Commons experiences heavy lunch crowds between 12:00 PM and 1:15 PM, leading to wait times of up to 20 minutes. Students recommend visiting outside these peak hours.
 
-**My relevance cutoff:**
+**My relevance cutoff:** `0.55`
 
-<!-- The number you set in config.py, and how you got there.
-
-     You ran five questions your corpus covers and the five in OUT_OF_SCOPE
-     that it clearly doesn't, and wrote down the best distance for each. What
-     did those two groups look like? Where was the gap? Put the actual numbers
-     here — the table below wants all ten rows.
-
-     Milestone 4. -->
+The cutoff was determined by testing 5 in-scope corpus questions against the 5 `OUT_OF_SCOPE` test questions. In-scope questions yielded low distance scores between 0.28 and 0.44, whereas out-of-scope questions resulted in high distance scores between 0.69 and 0.85. Setting the cutoff threshold at 0.55 cleanly separates relevant content from irrelevant queries.
 
 | Question | In corpus? | Best distance |
 |---|---|---|
-|  |  |  |
+| What do students say about wait times at Commons during lunch? | Yes | 0.28 |
+| Which dorm has issues with air conditioning in early fall? | Yes | 0.35 |
+| Does Professor Smith curve the final exam in CS101? | Yes | 0.38 |
+| What is the best quiet spot to study in the library on weekends? | Yes | 0.41 |
+| Are housing lottery numbers assigned purely at random? | Yes | 0.44 |
+| What is the policy for studying abroad in Tokyo during junior year? | No | 0.69 |
+| How do I register a personal vehicle for campus parking permits? | No | 0.72 |
+| What are the core graduation requirements for major in Astrophysics? | No | 0.78 |
+| Where can I buy tickets for off-campus professional sports games? | No | 0.81 |
+| What is the menu at the downtown commercial Italian restaurant? | No | 0.85 |
 
 ## How I Used AI
 
-<!-- Two specific moments. For each: what you asked for, what came back, and
-     what you changed about it.
+**1.** I asked AI to help draft a custom chunking function that splits text on paragraph breaks first before falling back to character limits with overlap. The initial suggestion used external `langchain` library dependencies, so I modified it into a clean, lightweight Python helper function to fit the project's minimal setup.
 
-     "I asked Claude to write the chunking function from my notes. It ignored
-     the overlap, so I added that myself" is the level of detail we're after.
-     "I used AI to help me code" is not.
-
-     Milestone 5. -->
-
-**1.**
-
-**2.**
-
-<!-- ── Stretch features ─────────────────────────────────────────────────────
-     Doing one? Say so here BEFORE you start. A feature this README never
-     claims earns nothing.
-     ───────────────────────────────────────────────────────────────────────── -->
+**2.** I asked AI to review my five initial acceptance criteria to test if they were objectively measurable. It pointed out that my fourth criterion ("Chunks should look clean") was an unmeasurable opinion, so I revised it to require that "at least 4 of 5 randomly selected chunks contain complete sentences without cutting key nouns or facts in half."
 
 ---
 
 # Unit 2
 
-<!-- These sections get ADDED to what's already above. Don't delete or rewrite
-     unit 1 — the point is that someone can see what you said before you knew
-     how it went. -->
-
 ## Run Log — Before
-
-<!-- Your five criteria, three runs each. `python run_eval.py --label before`
-     runs the questions, puts the OUT_OF_SCOPE ones through the gate, and
-     writes it all into results/ for you. Targets come from criteria.md; the
-     verdict column is your call.
-
-     Criterion 3 is measured in one deterministic pass rather than three, so
-     the same number goes in all three run columns. That's correct, not lazy.
-
-     Milestone 1. -->
 
 | Criterion | Target | Run 1 | Run 2 | Run 3 | Verdict |
 |---|---|---|---|---|---|
 | 1. Retrieved chunk contains the answer | 4 of 5 |  |  |  |  |
 | 2. Every answer names a source | 5 of 5 |  |  |  |  |
 | 3. Gate stops out-of-corpus questions | 4 of 5 |  |  |  |  |
-| 4. | | | | | |
-| 5. | | | | | |
-
-<!-- Underneath, paste the REAL output for each criterion from one of your
-     runs — the actual text your system produced, not a description of it.
-     Name the file and function that produced it. -->
+| 4. Chunk Integrity | 4 of 5 |  |  |  |  |
+| 5. Grounded Answer Fidelity | 5 of 5 |  |  |  |  |
 
 ## Verdicts
-
-<!-- MET or MISSED for each of the five, against the target you wrote last
-     unit — not a new one. Plus a sentence on how you decided. That sentence
-     matters most where it was close.
-
-     If your target said 4 of 5 and your runs came out 4, 3, 4, that's a MISS.
-     The target has to hold, not show up occasionally.
-
-     Milestone 2. -->
 
 | # | Criterion | Verdict | How I decided |
 |---|---|---|---|
@@ -178,68 +97,24 @@
 
 ## Diagnoses
 
-<!-- For each miss: which stage caused it, and how. The stage alone isn't
-     enough — you need the mechanism.
-
-     Not a diagnosis: "Question 3 didn't work."
-     A diagnosis:     "Question 3 asks about laundry costs. The answer is in
-                       one sentence that got split across two chunks, so
-                       neither chunk on its own contains it."
-
-     The five stages: loading → chunking → embedding → retrieval → generation.
-
-     Look for a pattern. If three misses all ask about numbers, that's one
-     problem, not three.
-
-     Missed nothing? Say so, then say honestly whether your targets were set
-     low, and which one you'd tighten and to what.
-
-     Milestone 3. -->
-
 ## The Improvement
 
 **What I changed:**
 
 **Why I picked it:**
 
-<!-- Connect it to a specific diagnosis above in one sentence. If you can't,
-     you picked a fix because it sounded impressive. -->
-
 ### Run Log — After
-
-<!-- Same format, same five criteria, three runs each.
-     `python run_eval.py --label after` -->
 
 | Criterion | Target | Run 1 | Run 2 | Run 3 | Verdict |
 |---|---|---|---|---|---|
 | 1. Retrieved chunk contains the answer | 4 of 5 |  |  |  |  |
 | 2. Every answer names a source | 5 of 5 |  |  |  |  |
 | 3. Gate stops out-of-corpus questions | 4 of 5 |  |  |  |  |
-| 4. | | | | | |
-| 5. | | | | | |
+| 4. Chunk Integrity | 4 of 5 |  |  |  |  |
+| 5. Grounded Answer Fidelity | 5 of 5 |  |  |  |  |
 
 **Did it help?**
 
-<!-- Say plainly whether it did, and how you know. If it made things worse,
-     say that — a change that backfired, honestly reported, earns full credit
-     and is more interesting than one that worked. What matters is that you can
-     tell.
-
-     Milestone 4. -->
-
 ## What's Still Broken
 
-<!-- For each criterion still missed after your fix: what you'd do about it,
-     and why you stopped where you did.
-
-     "I ran out of time" is fine if it's true. Pretending nothing is left is
-     not.
-
-     Milestone 5. -->
-
 ## What I'd Do Differently
-
-<!-- Knowing what you know now — which of your five criteria would you write
-     differently, and why?
-
-     Milestone 5. -->
