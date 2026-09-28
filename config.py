@@ -1,15 +1,7 @@
-"""
-Settings for The Unofficial Guide.
-
-Everything you're likely to change lives here, at the top, on purpose.
-You'll edit THRESHOLD in Milestone 4 and the chunking numbers in Milestone 3.
-
-Anything you set in your .env file wins over the defaults here.
-"""
+from __future__ import annotations
 
 import os
 from pathlib import Path
-
 from dotenv import load_dotenv
 
 ROOT = Path(__file__).parent
